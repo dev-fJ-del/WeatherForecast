@@ -3,97 +3,103 @@
 @inject IWeatherForecastService forecastService
 @inject ILocalStorageService localStore
 
-<RadzenCard Style="width:650px;margin: 0 auto; ">
-    <div class="row">
-        <div class="col-4">
-            <RadzenLabel Text="Search Places" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-10">
-            <RadzenTextBox @bind-Value="City" Style="margin-bottom:8px;width:100%;" @onkeyup="@KeyPress"></RadzenTextBox>
-        </div>
-        <div class="col">
-            <RadzenButton ButtonStyle="ButtonStyle.Success"
-                          Icon="search"
-                          ButtonType="ButtonType.Button"
-                          Click="async()=> await OnSearchClick()"></RadzenButton>
-        </div>
-    </div>
-</RadzenCard>
-<br />
-@if (weather != null)
-{
-    <div style="width:650px;margin: 0 auto; ">
-        <h2 style="margin-left:5px;">@City.ToUpper()</h2>
-    </div>
-
-    <RadzenCard Style="width:650px;margin: 0 auto; ">
-        <div class="row">
-
-            <div class="col border-right">
-                Temp.
+<SpinLoader Center="true" IsLoading="isLoading" Spinner="SpinnerType.Chase" Color="#b11717">
+    <ContentTemplate>
+        <RadzenCard Style="width:650px;margin: 0 auto; ">
+            <div class="row">
+                <div class="col-4">
+                    <RadzenLabel Text="Search Places" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10">
+                    <RadzenTextBox @bind-Value="City" Style="margin-bottom:8px;width:100%;" @onkeyup="@KeyPress"></RadzenTextBox>
+                </div>
+                <div class="col">
+                    <RadzenButton ButtonStyle="ButtonStyle.Success"
+                                  Icon="search"
+                                  ButtonType="ButtonType.Button"
+                                  Click="async()=> await OnSearchClick()"></RadzenButton>
+                </div>
+            </div>
+        </RadzenCard>
+        <br />
+        @if (weather != null)
+        {
+            <div style="width:650px;margin: 0 auto; ">
+                <h2 style="margin-left:5px;">@City.ToUpper()</h2>
             </div>
 
-            <div class="col border-right">
-                Min.
-            </div>
+            <RadzenCard Style="width:650px;margin: 0 auto; ">
+                <div class="row">
 
-            <div class="col border-right">
-                Max.
-            </div>
+                    <div class="col border-right">
+                        Temp.
+                    </div>
 
-            <div class="col border-right">
-                Feels Like
-            </div>
+                    <div class="col border-right">
+                        Min.
+                    </div>
 
-            <div class="col border-right">
-                Humidity
-            </div>
+                    <div class="col border-right">
+                        Max.
+                    </div>
 
-            <div class="col">
-                Pressure
-            </div>
+                    <div class="col border-right">
+                        Feels Like
+                    </div>
 
-        </div>
-        <div class="row">
-            <div class="col border-right">
-                @Math.Round((double)weather.Main.Temp, 0)
+                    <div class="col border-right">
+                        Humidity
+                    </div>
+
+                    <div class="col">
+                        Pressure
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col border-right">
+                        @Math.Round((double)weather.Main.Temp, 0)
+                    </div>
+                    <div class="col border-right">
+                        @Math.Round((double)weather.Main.Temp_Min, 0)
+                    </div>
+                    <div class="col border-right">
+                        @Math.Round((double)weather.Main.Temp_Max, 0)
+                    </div>
+                    <div class="col border-right">
+                        @Math.Round((double)weather.Main.Feels_Like, 0)
+                    </div>
+                    <div class="col border-right">
+                        @weather.Main.Humidity
+                    </div>
+                    <div class="col">
+                        @weather.Main.Pressure
+                        kPa
+                    </div>
+                </div>
+            </RadzenCard>
+        }
+        else
+        {
+            <div class="alert alert-danger alert-dismissible" style="width:650px;margin: 0 auto; ">
+                <div>No data to display</div>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="col border-right">
-                @Math.Round((double)weather.Main.Temp_Min, 0)
-            </div>
-            <div class="col border-right">
-                @Math.Round((double)weather.Main.Temp_Max, 0)
-            </div>
-            <div class="col border-right">
-                @Math.Round((double)weather.Main.Feels_Like, 0)
-            </div>
-            <div class="col border-right">
-                @weather.Main.Humidity
-            </div>
-            <div class="col">
-                @weather.Main.Pressure
-                kPa
-            </div>
-        </div>
-    </RadzenCard>
-}
-else
-{
-    <div class="alert alert-danger alert-dismissible" style="width:650px;margin: 0 auto; ">
-        <div>No data to display</div>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-}
+        }
+    </ContentTemplate>
+</SpinLoader>
+
 
 
 @code{
     public string City { get; set; }
     public Weather weather { get; set; }
     public Guid userId { get; set; }
+    bool isLoading = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -117,6 +123,7 @@ else
 
     private async Task OnSearchClick()
     {
+        isLoading = true;
         //fetch historical data
         var data = await forecastService.GetWeatherAsync(City, userId);
         //
@@ -128,21 +135,24 @@ else
         {
             //fetch weather from sevice
             weather = await forecastService.GetWeatherAPIAsync(City);
-
-            //save searched weather for faster retrieval
-            weather.City = City;
-            weather = await forecastService.SetWeatherAsync(weather);
-
-            UserWeather userWeather = new UserWeather()
+            if (weather != null)
             {
-                UserId = userId,
-                WeatherId = weather.Id
-            };
+                //save searched weather for faster retrieval
+                weather.City = City;
+                weather = await forecastService.SetWeatherAsync(weather);
 
-            //set historical data for user
-            await forecastService.SetUserWeatherAsync(userWeather);
+                UserWeather userWeather = new UserWeather()
+                {
+                    UserId = userId,
+                    WeatherId = weather.Id
+                };
+
+                //set historical data for user
+                await forecastService.SetUserWeatherAsync(userWeather);
+            }
+
         }
-
+        isLoading = false;
         StateHasChanged();
     }
 
