@@ -51,7 +51,7 @@ namespace WeatherForecast.Services
 
 
         }
-
+               
         public async Task<Weather> GetWeatherAsync(string City, Guid userId)
         {
             var data = (from uw in _context.UserWeathers

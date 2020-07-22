@@ -95,12 +95,6 @@ else
     public Weather weather { get; set; }
     public Guid userId { get; set; }
 
-    //protected async override Task OnInitializedAsync()
-    //{
-    //    //fetch guid from local store
-
-    //}
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         //invoke after init to utelize jsInterop
