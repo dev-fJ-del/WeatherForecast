@@ -1,0 +1,162 @@
+﻿@page "/"
+
+@inject IWeatherForecastService forecastService
+@inject ILocalStorageService localStore
+
+<RadzenCard Style="width:650px;margin: 0 auto; ">
+    <div class="row">
+        <div class="col-4">
+            <RadzenLabel Text="Search Places" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-10">
+            <RadzenTextBox @bind-Value="City" Style="margin-bottom:8px;width:100%;" @onkeyup="@KeyPress"></RadzenTextBox>
+        </div>
+        <div class="col">
+            <RadzenButton ButtonStyle="ButtonStyle.Success"
+                          Icon="search"
+                          ButtonType="ButtonType.Button"
+                          Click="async()=> await OnSearchClick()"></RadzenButton>
+        </div>
+    </div>
+</RadzenCard>
+<br />
+@if (weather != null)
+{
+    <div style="width:650px;margin: 0 auto; ">
+        <h2 style="margin-left:5px;">@City.ToUpper()</h2>
+    </div>
+
+    <RadzenCard Style="width:650px;margin: 0 auto; ">
+        <div class="row">
+
+            <div class="col border-right">
+                Temp.
+            </div>
+
+            <div class="col border-right">
+                Min.
+            </div>
+
+            <div class="col border-right">
+                Max.
+            </div>
+
+            <div class="col border-right">
+                Feels Like
+            </div>
+
+            <div class="col border-right">
+                Humidity
+            </div>
+
+            <div class="col">
+                Pressure
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col border-right">
+                @Math.Round((double)weather.Main.Temp, 0)
+            </div>
+            <div class="col border-right">
+                @Math.Round((double)weather.Main.Temp_Min, 0)
+            </div>
+            <div class="col border-right">
+                @Math.Round((double)weather.Main.Temp_Max, 0)
+            </div>
+            <div class="col border-right">
+                @Math.Round((double)weather.Main.Feels_Like, 0)
+            </div>
+            <div class="col border-right">
+                @weather.Main.Humidity
+            </div>
+            <div class="col">
+                @weather.Main.Pressure
+                kPa
+            </div>
+        </div>
+    </RadzenCard>
+}
+else
+{
+    <div class="alert alert-danger alert-dismissible" style="width:650px;margin: 0 auto; ">
+        <div>No data to display</div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+
+@code{
+    public string City { get; set; }
+    public Weather weather { get; set; }
+    public Guid userId { get; set; }
+
+    //protected async override Task OnInitializedAsync()
+    //{
+    //    //fetch guid from local store
+
+    //}
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //invoke after init to utelize jsInterop
+        if (firstRender)
+        {
+            userId = await localStore.GetItemAsync<Guid>("userId");
+            if (userId == Guid.Empty)
+            {
+                //generate and store new guid
+                Guid guid = Guid.NewGuid();
+                await localStore.SetItemAsync("userId", guid);
+                userId = guid;
+            }
+
+            StateHasChanged();
+        }
+
+    }
+
+
+    private async Task OnSearchClick()
+    {
+        //fetch historical data
+        var data = await forecastService.GetWeatherAsync(City, userId);
+        //
+        if (data != null)
+        {
+            weather = data;
+        }
+        else
+        {
+            //fetch weather from sevice
+            weather = await forecastService.GetWeatherAPIAsync(City);
+
+            //save searched weather for faster retrieval
+            weather.City = City;
+            weather = await forecastService.SetWeatherAsync(weather);
+
+            UserWeather userWeather = new UserWeather()
+            {
+                UserId = userId,
+                WeatherId = weather.Id
+            };
+
+            //set historical data for user
+            await forecastService.SetUserWeatherAsync(userWeather);
+        }
+
+        StateHasChanged();
+    }
+
+    async void KeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await OnSearchClick();
+        }
+    }
+}
