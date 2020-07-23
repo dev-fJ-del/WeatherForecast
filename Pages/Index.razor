@@ -31,25 +31,25 @@
             </div>
 
             <RadzenCard Style="width:650px;margin: 0 auto; ">
-                <div class="row">
+                <div class="row text-primary">
 
-                    <div class="col border-right">
-                        Temp.
+                    <div class="col border-right text-center">
+                      Temp.
                     </div>
 
-                    <div class="col border-right">
+                    <div class="col border-right text-center">
                         Min.
                     </div>
 
-                    <div class="col border-right">
+                    <div class="col border-right text-center">
                         Max.
                     </div>
 
-                    <div class="col border-right">
+                    <div class="col border-right text-center">
                         Feels Like
                     </div>
 
-                    <div class="col border-right">
+                    <div class="col border-right text-center">
                         Humidity
                     </div>
 
@@ -59,24 +59,36 @@
 
                 </div>
                 <div class="row">
-                    <div class="col border-right">
-                        @Math.Round((double)weather.Main.Temp, 0)
+                    <div class="col border-right text-center" style="margin:0 auto;">
+                        @Math.Round((double)weather.Main.Temp, 0)℃
+                        <br />
+                        <img src="images/temp.png" style="height:30px;width:30px;" />
                     </div>
-                    <div class="col border-right">
-                        @Math.Round((double)weather.Main.Temp_Min, 0)
+                    <div class="col border-right text-center" style="margin:0 auto;">
+                        @Math.Round((double)weather.Main.Temp_Min, 0)℃
+                        <br />
+                        <img src="images/min.png" style="height:30px;width:30px;" />
                     </div>
-                    <div class="col border-right">
-                        @Math.Round((double)weather.Main.Temp_Max, 0)
+                    <div class="col border-right text-center" style="margin:0 auto;">
+                        @Math.Round((double)weather.Main.Temp_Max, 0)℃
+                        <br />
+                        <img src="images/max.png" style="height:30px;width:30px;" />
                     </div>
-                    <div class="col border-right">
-                        @Math.Round((double)weather.Main.Feels_Like, 0)
+                    <div class="col border-right text-center" style="margin:0 auto;">
+                        @Math.Round((double)weather.Main.Feels_Like, 0)℃
+                        <br />
+                        <img src="images/feelslike.png" style="height:30px;width:30px;" />
                     </div>
-                    <div class="col border-right">
-                        @weather.Main.Humidity
+                    <div class="col border-right text-center" style="margin:0 auto;">
+                        @weather.Main.Humidity%
+                        <br />
+                        <img src="images/humidity.png" style="height:30px;width:30px;" />
                     </div>
-                    <div class="col">
+                    <div class="col text-center" style="margin:0 auto;">
                         @weather.Main.Pressure
                         kPa
+                        <br />
+                        <img src="images/pressure.png" style="height:30px;width:30px;" />
                     </div>
                 </div>
             </RadzenCard>
@@ -156,7 +168,7 @@
         StateHasChanged();
     }
 
-    async void KeyPress(KeyboardEventArgs e)
+    async Task KeyPress(KeyboardEventArgs e)
     {
         isLoading = true;
         if (e.Key == "Enter")
