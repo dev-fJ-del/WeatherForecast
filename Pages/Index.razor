@@ -60,22 +60,22 @@
                 </div>
                 <div class="row">
                     <div class="col border-right text-center" style="margin:0 auto;">
-                        @Math.Round((double)weather.Main.Temp, 0)℃
+                        @Math.Round((double)weather.Main.Temp, 0)°
                         <br />
                         <img src="images/temp.png" style="height:30px;width:30px;" />
                     </div>
                     <div class="col border-right text-center" style="margin:0 auto;">
-                        @Math.Round((double)weather.Main.Temp_Min, 0)℃
+                        @Math.Round((double)weather.Main.Temp_Min, 0)°
                         <br />
                         <img src="images/min.png" style="height:30px;width:30px;" />
                     </div>
                     <div class="col border-right text-center" style="margin:0 auto;">
-                        @Math.Round((double)weather.Main.Temp_Max, 0)℃
+                        @Math.Round((double)weather.Main.Temp_Max, 0)°
                         <br />
                         <img src="images/max.png" style="height:30px;width:30px;" />
                     </div>
                     <div class="col border-right text-center" style="margin:0 auto;">
-                        @Math.Round((double)weather.Main.Feels_Like, 0)℃
+                        @Math.Round((double)weather.Main.Feels_Like, 0)°
                         <br />
                         <img src="images/feelslike.png" style="height:30px;width:30px;" />
                     </div>
@@ -95,11 +95,9 @@
         }
         else
         {
-            <div class="alert alert-danger alert-dismissible" style="width:650px;margin: 0 auto; ">
+            <div class="alert alert-danger" style="width:650px;margin: 0 auto; ">
                 <div>No data to display</div>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+              
             </div>
         }
     </ContentTemplate>
